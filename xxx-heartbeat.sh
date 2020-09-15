@@ -46,7 +46,7 @@ then
 	LOAD_STR=`uptime | awk -F 'load average: ' '{print $2}'` # Get server load information
 	echo $LOAD_STR
 	arr=($(str_to_array $LOAD_STR))
-	#获取cpu逻辑核个数
+	# Get CPU logic cores
 	CORE_COUNT=`grep 'model name' /proc/cpuinfo | wc -l`
 	echo $CORE_COUNT
 	#echo ${arr[*]}
@@ -59,9 +59,9 @@ then
     # Calculate load result: LOAD_RESULT = (1 minute load)/(CPU cores)
 	LOAD_RESULT=$(awk 'BEGIN{print '$LOAD2'/'$CORE_COUNT' }')
 	
-	/usr/bin/curl -H "Content-Type:application/json" -X POST --data '{"ServerId":'$XXX_SERVER_ID',"HeartbeatInfo":{"loadAvg1": "'$LOAD1'","sysLoad": "'$LOAD_RESULT'","cores": "'$CORE_COUNT'","memoA": "","memoB":""}}' $SERVICE_URL >> $LOG_FILE
+	/usr/bin/curl  --connect-timeout 10 -H "Content-Type:application/json" -X POST --data '{"ServerId":'$XXX_SERVER_ID',"HeartbeatInfo":{"loadAvg1": "'$LOAD1'","sysLoad": "'$LOAD_RESULT'","cores": "'$CORE_COUNT'","memoA": "","memoB":""}}' $SERVICE_URL >> $LOG_FILE
 else
-	#如果进程不存在，则不上报心跳
+	# If Process is not running, write log to log file.
 	echo 'The process is not running.'>> $LOG_FILE
 fi
 echo >> $LOG_FILE
